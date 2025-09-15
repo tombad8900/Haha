@@ -3,190 +3,147 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>عارض HTML بـ iframe - قوي ومتكامل</title>
+  <title>عارض HTML بـ iframe مع واجهات متعددة</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f5f5;
-      padding: 0;
-      color: #333;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      overflow: hidden;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .header {
-      background: #2c3e50;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    /* شريط الأزرار في الأعلى */
-    .control-bar {
-      padding: 10px 20px;
-      background: #ecf0f1;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    .control-bar button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .control-bar button#btn-view {
-      background: #3498db;
-      color: white;
-    }
-
-    .control-bar button#btn-view:hover {
-      background: #2980b9;
-    }
-
-    .control-bar button#btn-clear {
-      background: #e74c3c;
-      color: white;
-    }
-
-    .control-bar button#btn-clear:hover {
-      background: #c0392b;
-    }
-
-    .editor-section {
-      display: flex;
-      flex: 1;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .code-box {
-      flex: 1 1 15%;
-      border: 1px solid #ddd;
-      border-bottom: none;
-      position: relative;
-    }
-
-    .preview-box {
-      flex: 1 1 85%;
-      border: 1px solid #ddd;
-      overflow: hidden;
-    }
-
-    .code-box h3, .preview-box h3 {
-      background: #34495e;
-      color: white;
-      padding: 12px;
-      margin: 0;
-      font-size: 18px;
-      text-align: center;
-    }
-
-    #code-input {
-      width: 100%;
-      height: 100%;
-      padding: 15px;
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      border: none;
-      resize: none;
-      background: #f8f9fa;
-      color: #333;
-      box-sizing: border-box;
-      overflow-y: auto;
-      line-height: 1.5;
-      min-height: 100px;
-    }
-
-    #preview-frame {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: white;
-    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f5f5f5; color:#333; height:100vh; display:flex; flex-direction:column; }
+    .container { max-width:1200px; margin:0 auto; background:white; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1); flex:1; display:flex; flex-direction:column; }
+    .header { background:#2c3e50; color:white; padding:15px; text-align:center; font-size:24px; font-weight:bold; }
+    .control-bar { padding:10px 20px; background:#ecf0f1; text-align:center; border-bottom:1px solid #ddd; display:flex; justify-content:center; gap:15px; flex-wrap:wrap; }
+    .control-bar button { padding:10px 20px; font-size:16px; border:none; border-radius:6px; cursor:pointer; transition:background 0.3s; }
+    .control-bar button:hover { opacity:0.9; }
+    .editor-section, .saved-section { flex:1; display:flex; flex-direction:column; gap:0; padding:10px; }
+    .code-box, .saved-box { flex:1; border:1px solid #ddd; border-radius:8px; background:#fff; overflow:auto; padding:10px; }
+    .code-box h3, .saved-box h3 { background:#34495e; color:white; padding:12px; margin:0; font-size:18px; text-align:center; border-radius:6px 6px 0 0; }
+    #code-input { width:100%; height:200px; padding:10px; font-family:'Courier New', monospace; font-size:14px; border:1px solid #ccc; resize:none; background:#f8f9fa; color:#333; line-height:1.5; }
+    #preview-frame { width:100%; height:300px; border:none; margin-top:10px; background:white; }
+    .saved-item { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; padding:5px 0; }
+    .saved-item span { flex:1; }
+    .saved-item button { margin-left:5px; padding:5px 10px; font-size:14px; border-radius:4px; border:none; cursor:pointer; }
+    button.play { background:#3498db; color:white; }
+    button.copy { background:#27ae60; color:white; }
+    button.delete { background:#e74c3c; color:white; }
+    .page { display:none; flex-direction:column; flex:1; }
+    .page.active { display:flex; }
   </style>
 </head>
 <body>
-
 <div class="container">
-  <div class="header">عارض HTML مباشر بـ iframe</div>
+  <div class="header">عارض HTML بـ iframe مع واجهات متعددة</div>
 
   <div class="control-bar">
-    <button id="btn-view" onclick="updatePreview()">عرض</button>
-    <button id="btn-clear" onclick="clearAll()">حذف</button>
+    <button onclick="showPage('editor-page')">واجهة الكود</button>
+    <button onclick="showPage('saved-page')">الأكواد المحفوظة</button>
+    <button onclick="saveCode()">حفظ الكود</button>
+    <button onclick="clearAll()">حذف الكود</button>
   </div>
 
-  <div class="editor-section">
-    <div class="code-box">
-      <h3>أدخل كود HTML هنا</h3>
-      <textarea id="code-input" placeholder="اكتب كود HTML الخاص بك..."></textarea>
-    </div>
-
-    <div class="preview-box">
-      <h3>النتيجة المباشرة</h3>
+  <!-- الواجهة الرئيسية للكود -->
+  <div id="editor-page" class="page active">
+    <div class="editor-section">
+      <div class="code-box">
+        <h3>أدخل كود HTML هنا</h3>
+        <textarea id="code-input" placeholder="اكتب كود HTML الخاص بك..."></textarea>
+      </div>
       <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+  </div>
+
+  <!-- واجهة الأكواد المحفوظة -->
+  <div id="saved-page" class="page">
+    <div class="saved-section">
+      <div class="saved-box">
+        <h3>الأكواد المحفوظة</h3>
+        <div id="saved-list"></div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  // 🚫 لم يعد هناك مثال افتراضي — الصفحة تفتح فارغة تمامًا
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('code-input').value = '';        // فارغ
-    updatePreview();                                         // يظهر iframe فارغ (أبيض)
-  });
+  // عرض صفحة معينة وإخفاء الباقي
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+  }
 
+  // تحديث المعاينة في iframe
   function updatePreview() {
     const code = document.getElementById('code-input').value;
     const frame = document.getElementById('preview-frame');
-    
-    if (code.trim() === '') {
-      frame.src = 'about:blank'; // يبقى أبيض إذا كان الفراغ
-    } else {
-      const blob = new Blob([code], { type: 'text/html' });
+    if(code.trim()===''){ frame.src='about:blank'; }
+    else {
+      const blob = new Blob([code], {type:'text/html'});
       const url = URL.createObjectURL(blob);
       frame.src = url;
     }
   }
 
+  // مسح الكود
   function clearAll() {
-    document.getElementById('code-input').value = '';
-    document.getElementById('preview-frame').src = 'about:blank';
+    document.getElementById('code-input').value='';
+    updatePreview();
   }
 
-  // تحديث تلقائي عند الكتابة (اختياري)
-  document.getElementById('code-input').addEventListener('input', () => {
-    // يمكنك إزالة التعليق إذا أردت التحديث الفوري:
-    // updatePreview();
-  });
-</script>
+  // حفظ الكود في localStorage
+  function saveCode() {
+    const code = document.getElementById('code-input').value.trim();
+    if(!code) { alert('لا يمكن حفظ كود فارغ'); return; }
+    const name = prompt('اكتب اسم للكود:');
+    if(!name) return;
+    let codes = JSON.parse(localStorage.getItem('savedCodes')||'{}');
+    codes[name] = code;
+    localStorage.setItem('savedCodes', JSON.stringify(codes));
+    loadSavedCodes();
+    alert('تم الحفظ بنجاح!');
+  }
 
+  // تحميل الأكواد المحفوظة
+  function loadSavedCodes() {
+    const list = document.getElementById('saved-list');
+    list.innerHTML='';
+    let codes = JSON.parse(localStorage.getItem('savedCodes')||'{}');
+    for(let name in codes){
+      const div = document.createElement('div');
+      div.classList.add('saved-item');
+      const span = document.createElement('span');
+      span.textContent = name;
+      div.appendChild(span);
+
+      // زر التشغيل
+      const playBtn = document.createElement('button');
+      playBtn.textContent='تشغيل';
+      playBtn.classList.add('play');
+      playBtn.onclick = ()=>{ document.getElementById('code-input').value = codes[name]; updatePreview(); showPage('editor-page'); }
+      div.appendChild(playBtn);
+
+      // زر النسخ
+      const copyBtn = document.createElement('button');
+      copyBtn.textContent='نسخ';
+      copyBtn.classList.add('copy');
+      copyBtn.onclick = ()=>{ navigator.clipboard.writeText(codes[name]); alert('تم النسخ!'); }
+      div.appendChild(copyBtn);
+
+      // زر الحذف
+      const delBtn = document.createElement('button');
+      delBtn.textContent='حذف';
+      delBtn.classList.add('delete');
+      delBtn.onclick = ()=>{ if(confirm('هل تريد حذف هذا الكود؟')){ delete codes[name]; localStorage.setItem('savedCodes', JSON.stringify(codes)); loadSavedCodes(); } }
+      div.appendChild(delBtn);
+
+      list.appendChild(div);
+    }
+  }
+
+  // تهيئة الصفحة
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('code-input').value='';
+    updatePreview();
+    loadSavedCodes();
+  });
+
+  // تحديث تلقائي عند الكتابة (اختياري)
+  document.getElementById('code-input').addEventListener('input', updatePreview);
+</script>
 </body>
 </html>
